@@ -246,12 +246,14 @@ class _DateCard extends ConsumerWidget {
                     color: AppColors.getTextSecondaryColor(context),
                   ),
                 ),
-                Text(
-                  TimeFormatter.formatHours(totalHours),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.getInfoColor(context),
+                Flexible(
+                  child: Text(
+                    TimeFormatter.formatHours(totalHours),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.getInfoColor(context),
+                    ),
                   ),
                 ),
                 Text(

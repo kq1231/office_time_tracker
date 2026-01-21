@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../common/widgets/balance_card.dart';
 import '../common/widgets/status_card.dart';
 import '../common/widgets/today_hours_card.dart';
-import '../providers/objectbox_provider.dart';
 import '../providers/time_tracking_provider.dart';
 import '../widgets/custom_session_dialog.dart';
 import 'history_screen.dart';
@@ -13,8 +12,6 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final objectBoxAsync = ref.watch(objectBoxServiceProvider);
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -41,11 +38,7 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: objectBoxAsync.when(
-        data: (_) => const _HomeContent(),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
-      ),
+      body: const _HomeContent(),
     );
   }
 }

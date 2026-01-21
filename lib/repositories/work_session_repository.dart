@@ -1,11 +1,20 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:office_time_tracker/providers/app_startup_provider.dart';
+
 import '../models/work_session.dart';
 import '../objectbox.g.dart';
 
 /// Repository for managing work session data operations
-class WorkSessionRepository {
-  final Box<WorkSession> _sessionBox;
+class WorkSessionRepositoryNotifier extends AsyncNotifier {
+  late final Box<WorkSession> _sessionBox;
 
-  WorkSessionRepository(Store store) : _sessionBox = store.box<WorkSession>();
+  @override
+  Future<void> build() async {
+    _sessionBox = ref
+        .read(objectBoxServiceProvider)
+        .store
+        .box<WorkSession>();
+  }
 
   /// Get all sessions
   Future<List<WorkSession>> getAllSessions() async {

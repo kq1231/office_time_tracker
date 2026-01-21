@@ -15,7 +15,7 @@ class AppColors {
   static Color getSuccessBackgroundColor(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     return brightness == Brightness.dark
-        ? Colors.green.shade900.withOpacity(0.3)
+        ? Colors.green.shade900.withValues(alpha: 0.3)
         : Colors.green.shade50;
   }
 
@@ -29,7 +29,7 @@ class AppColors {
   static Color getErrorBackgroundColor(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     return brightness == Brightness.dark
-        ? Colors.red.shade900.withOpacity(0.3)
+        ? Colors.red.shade900.withValues(alpha: 0.3)
         : Colors.red.shade50;
   }
 
@@ -43,7 +43,7 @@ class AppColors {
   static Color getInfoBackgroundColor(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     return brightness == Brightness.dark
-        ? Colors.blue.shade900.withOpacity(0.3)
+        ? Colors.blue.shade900.withValues(alpha: 0.3)
         : Colors.blue.shade50;
   }
 
@@ -57,7 +57,7 @@ class AppColors {
   static Color getNeutralBackgroundColor(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     return brightness == Brightness.dark
-        ? Colors.grey.shade800.withOpacity(0.3)
+        ? Colors.grey.shade800.withValues(alpha: 0.3)
         : Colors.grey.shade50;
   }
 
@@ -95,7 +95,7 @@ class AppColors {
   static Color getBadgePositiveBackgroundColor(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     return brightness == Brightness.dark
-        ? Colors.green.shade800.withOpacity(0.5)
+        ? Colors.green.shade800.withValues(alpha: 0.5)
         : Colors.green.shade100;
   }
 
@@ -105,7 +105,7 @@ class AppColors {
   static Color getBadgeNegativeBackgroundColor(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     return brightness == Brightness.dark
-        ? Colors.red.shade800.withOpacity(0.5)
+        ? Colors.red.shade800.withValues(alpha: 0.5)
         : Colors.red.shade100;
   }
 }

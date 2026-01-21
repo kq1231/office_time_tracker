@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/work_session.dart';
 import '../repositories/work_session_repository.dart';
-import 'repository_provider.dart';
+import 'work_session_repository_provider.dart';
 
 /// State class for history with pagination
 class HistoryState {
@@ -38,8 +38,8 @@ class HistoryState {
 
 /// Notifier for history with pagination
 class HistoryNotifier extends AsyncNotifier<HistoryState> {
-  WorkSessionRepository get _repository =>
-      ref.read(workSessionRepositoryProvider);
+  WorkSessionRepositoryNotifier get _repository =>
+      ref.read(workSessionRepositoryProvider.notifier);
 
   static const int _pageSize = 20;
   int _currentOffset = 0;

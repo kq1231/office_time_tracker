@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:office_time_tracker/common/logging/app_logger.dart';
 import '../models/work_session.dart';
 import '../repositories/work_session_repository.dart';
-import 'repository_provider.dart';
+import '../services/notification_service.dart';
+import 'app_startup_provider.dart';
+import 'work_session_repository_provider.dart';
 
 /// State class for time tracking
 class TimeTrackingState {
@@ -34,8 +37,11 @@ class TimeTrackingState {
 
 /// AsyncNotifier for time tracking operations
 class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
-  WorkSessionRepository get _repository =>
-      ref.read(workSessionRepositoryProvider);
+  WorkSessionRepositoryNotifier get _repository =>
+      ref.read(workSessionRepositoryProvider.notifier);
+
+  NotificationService get _notificationService =>
+      ref.read(notificationServiceProvider);
 
   @override
   Future<TimeTrackingState> build() async {
@@ -47,12 +53,9 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
     final todaySessions = await _repository.getSessionsForDate(DateTime.now());
     final totalBalance = await _repository.calculateBalance();
 
-    final todayHours = todaySessions.fold<double>(
-      0.0,
-      (sum, session) {
-        return sum + session.durationHours;
-      },
-    );
+    final todayHours = todaySessions.fold<double>(0.0, (sum, session) {
+      return sum + session.durationHours;
+    });
 
     return TimeTrackingState(
       activeSession: activeSession,
@@ -71,13 +74,24 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
   /// Clock in
   Future<void> clockIn() async {
     await _repository.clockIn();
-    state = AsyncValue.data(await _loadData());
+    final newState = await _loadData();
+    state = AsyncValue.data(newState);
+
+    // Schedule notifications if today's hours < 9
+    try {
+      await _scheduleNotificationsIfNeeded(newState);
+    } catch (e) {
+      AppLogger.error('Error scheduling notifications: $e');
+    }
   }
 
   /// Clock out
   Future<void> clockOut() async {
     await _repository.clockOut();
     state = AsyncValue.data(await _loadData());
+
+    // Cancel notifications when clocking out
+    await _notificationService.cancelNineHourReminders();
   }
 
   /// Create custom session
@@ -91,7 +105,17 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
       clockIn: clockIn,
       clockOut: clockOut,
     );
-    state = AsyncValue.data(await _loadData());
+    final newState = await _loadData();
+    state = AsyncValue.data(newState);
+
+    // Schedule notifications if it's an active session and today's hours < 9
+    if (clockOut == null) {
+      try {
+        await _scheduleNotificationsIfNeeded(newState);
+      } catch (e) {
+        AppLogger.error('Error scheduling notifications: $e');
+      }
+    }
   }
 
   /// Update session
@@ -105,10 +129,27 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
     await _repository.deleteSession(sessionId);
     state = AsyncValue.data(await _loadData());
   }
+
+  /// Schedule notifications if needed (hours < 9 and active session exists)
+  Future<void> _scheduleNotificationsIfNeeded(TimeTrackingState state) async {
+    if (state.activeSession == null) return;
+
+    // Calculate today's hours excluding the active session
+    final todayHoursWithoutActive = state.todaySessions
+        .where((s) => s.id != state.activeSession!.id && !s.isActive)
+        .fold<double>(0.0, (sum, session) => sum + session.durationHours);
+
+    // Only schedule if less than 9 hours worked (excluding current active session)
+    if (todayHoursWithoutActive < 9.0) {
+      await _notificationService.scheduleNineHourReminders(
+        currentTodayHours: todayHoursWithoutActive,
+      );
+    }
+  }
 }
 
 /// Provider instance
 final timeTrackingProvider =
     AsyncNotifierProvider<TimeTrackingNotifier, TimeTrackingState>(() {
-  return TimeTrackingNotifier();
-});
+      return TimeTrackingNotifier();
+    });
