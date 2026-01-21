@@ -1,0 +1,29 @@
+PODS:
+  - FlutterMacOS (1.0.0)
+  - ObjectBox (5.1.1)
+  - objectbox_flutter_libs (0.0.1):
+    - FlutterMacOS
+    - ObjectBox (= 5.1.1)
+
+DEPENDENCIES:
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - objectbox_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/objectbox_flutter_libs/macos`)
+
+SPEC REPOS:
+  trunk:
+    - ObjectBox
+
+EXTERNAL SOURCES:
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  objectbox_flutter_libs:
+    :path: Flutter/ephemeral/.symlinks/plugins/objectbox_flutter_libs/macos
+
+SPEC CHECKSUMS:
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  ObjectBox: 26871f7cce80a8bd2e610bf944aeaded730f6925
+  objectbox_flutter_libs: 5aac4de1c44d8b95362cb46f2d2acfe4da7c5d63
+
+PODFILE CHECKSUM: 346bfb2deb41d4a6ebd6f6799f92188bde2d246f
+
+COCOAPODS: 1.16.2
