@@ -133,6 +133,7 @@ class _HomeContentState extends ConsumerState<_HomeContent>
                 todayHours: state.todayHours,
                 activeSession: state.activeSession,
                 todaySessions: state.todaySessions,
+                activeSessionDurationSecondsAtLoad: state.activeSessionDurationSecondsAtLoad,
                 pulseController: _pulseController,
               ),
               const SizedBox(height: 24),

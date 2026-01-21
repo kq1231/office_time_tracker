@@ -10,6 +10,9 @@ class BalanceCard extends StatelessWidget {
   final WorkSession? activeSession;
   final List<WorkSession> todaySessions;
   final AnimationController? pulseController;
+  
+  /// The duration of the active session when the state was last loaded.
+  final int? activeSessionDurationSecondsAtLoad;
 
   const BalanceCard({
     super.key,
@@ -17,6 +20,7 @@ class BalanceCard extends StatelessWidget {
     required this.todayHours,
     required this.activeSession,
     required this.todaySessions,
+    required this.activeSessionDurationSecondsAtLoad,
     this.pulseController,
   });
 
@@ -24,27 +28,18 @@ class BalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Calculate real-time balance with active session
     double realtimeBalance = totalBalance;
-    if (activeSession != null) {
-      // Calculate non-active sessions' hours for today
-      final nonActiveHours = todaySessions
-          .where((s) => s.id != activeSession!.id)
-          .fold<double>(
-            0.0,
-            (sum, s) =>
-                sum + (s.clockOut!.difference(s.clockIn).inMinutes / 60.0),
-          );
-
-      // Calculate real-time active session hours
-      final activeSeconds = DateTime.now()
-          .difference(activeSession!.clockIn)
-          .inSeconds;
-      final activeHours = activeSeconds / 3600.0;
-
-      // Recalculate today's total with real-time active session
-      final realtimeTodayHours = nonActiveHours + activeHours;
-
-      // Adjust balance: remove old today's hours, add real-time today's hours
-      realtimeBalance = totalBalance - todayHours + realtimeTodayHours;
+    
+    if (activeSession != null && activeSessionDurationSecondsAtLoad != null) {
+      // Calculate the current duration of the active session
+      final currentActiveSeconds = activeSession!.durationSeconds;
+      
+      // Calculate the time passed (delta) since the last state load
+      final deltaSeconds = currentActiveSeconds - activeSessionDurationSecondsAtLoad!;
+      
+      // Add the delta to the balance. 
+      // This works correctly even if the session spans past midnight 
+      // because we only add the time elapsed since the last calculation.
+      realtimeBalance = totalBalance + (deltaSeconds / 3600.0);
     }
 
     final isPositive = realtimeBalance >= 0;

@@ -6,10 +6,7 @@ import '../providers/app_startup_provider.dart';
 class AppStartupWidget extends ConsumerWidget {
   final Widget Function(BuildContext context) appBuilder;
 
-  const AppStartupWidget({
-    super.key,
-    required this.appBuilder,
-  });
+  const AppStartupWidget({super.key, required this.appBuilder});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,10 +23,7 @@ class AppStartupWidget extends ConsumerWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    Colors.blue.shade50,
-                    Colors.blue.shade100,
-                  ],
+                  colors: [Colors.blue.shade50, Colors.blue.shade100],
                 ),
               ),
               child: const Center(
@@ -56,10 +50,7 @@ class AppStartupWidget extends ConsumerWidget {
                     SizedBox(height: 12),
                     Text(
                       'Setting up your workspace',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -79,10 +70,7 @@ class AppStartupWidget extends ConsumerWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    Colors.red.shade50,
-                    Colors.red.shade100,
-                  ],
+                  colors: [Colors.red.shade50, Colors.red.shade100],
                 ),
               ),
               child: Center(
@@ -118,7 +106,7 @@ class AppStartupWidget extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(

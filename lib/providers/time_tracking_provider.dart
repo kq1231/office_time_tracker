@@ -12,12 +12,17 @@ class TimeTrackingState {
   final List<WorkSession> todaySessions;
   final double todayHours;
   final double totalBalance;
+  
+  /// Duration of the active session at the moment of state calculation.
+  /// Used to calculate the delta for real-time balance updates.
+  final int? activeSessionDurationSecondsAtLoad;
 
   TimeTrackingState({
     this.activeSession,
     this.todaySessions = const [],
     this.todayHours = 0.0,
     this.totalBalance = 0.0,
+    this.activeSessionDurationSecondsAtLoad,
   });
 
   TimeTrackingState copyWith({
@@ -25,12 +30,15 @@ class TimeTrackingState {
     List<WorkSession>? todaySessions,
     double? todayHours,
     double? totalBalance,
+    int? activeSessionDurationSecondsAtLoad,
   }) {
     return TimeTrackingState(
       activeSession: activeSession ?? this.activeSession,
       todaySessions: todaySessions ?? this.todaySessions,
       todayHours: todayHours ?? this.todayHours,
       totalBalance: totalBalance ?? this.totalBalance,
+      activeSessionDurationSecondsAtLoad: 
+          activeSessionDurationSecondsAtLoad ?? this.activeSessionDurationSecondsAtLoad,
     );
   }
 }
@@ -57,11 +65,17 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
       return sum + session.durationHours;
     });
 
+    // Capture the duration of the active session at this exact moment.
+    // This allows the UI to calculate the delta for real-time updates 
+    // without fetching from the database every second.
+    final int? activeDurationAtLoad = activeSession?.durationSeconds;
+
     return TimeTrackingState(
       activeSession: activeSession,
       todaySessions: todaySessions,
       todayHours: todayHours,
       totalBalance: totalBalance,
+      activeSessionDurationSecondsAtLoad: activeDurationAtLoad,
     );
   }
 

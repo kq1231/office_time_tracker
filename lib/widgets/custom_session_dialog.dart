@@ -10,7 +10,8 @@ Future<void> showAddCustomSessionDialog(
   WidgetRef ref, {
   VoidCallback? onSuccess,
 }) async {
-  DateTime selectedDate = DateTime.now();
+  DateTime selectedClockInDate = DateTime.now();
+  DateTime selectedClockOutDate = DateTime.now();
   TimeOfDay selectedClockIn = TimeOfDay.now();
   TimeOfDay? selectedClockOut; // Null by default
 
@@ -23,24 +24,32 @@ Future<void> showAddCustomSessionDialog(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Clock In Date & Time
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'Clock In',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
               ListTile(
                 title: const Text('Date'),
-                subtitle: Text(DateFormat('MMM d, y').format(selectedDate)),
+                subtitle: Text(DateFormat('MMM d, y').format(selectedClockInDate)),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final date = await showDatePicker(
                     context: context,
-                    initialDate: selectedDate,
+                    initialDate: selectedClockInDate,
                     firstDate: DateTime(2020),
-                    lastDate: DateTime.now(),
+                    lastDate: DateTime(2030),
                   );
                   if (date != null) {
-                    setState(() => selectedDate = date);
+                    setState(() => selectedClockInDate = date);
                   }
                 },
               ),
               ListTile(
-                title: const Text('Clock In'),
+                title: const Text('Time'),
                 subtitle: Text(selectedClockIn.format(context)),
                 trailing: const Icon(Icons.access_time),
                 onTap: () async {
@@ -53,8 +62,19 @@ Future<void> showAddCustomSessionDialog(
                   }
                 },
               ),
+              
+              const Divider(),
+
+              // Clock Out Date & Time
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'Clock Out',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
               ListTile(
-                title: const Text('Clock Out'),
+                title: const Text('Time'),
                 subtitle: Text(
                   selectedClockOut?.format(context) ?? 'In Progress',
                 ),
@@ -81,6 +101,23 @@ Future<void> showAddCustomSessionDialog(
                   }
                 },
               ),
+              if (selectedClockOut != null)
+                ListTile(
+                  title: const Text('Date'),
+                  subtitle: Text(DateFormat('MMM d, y').format(selectedClockOutDate)),
+                  trailing: const Icon(Icons.calendar_today),
+                  onTap: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: selectedClockOutDate,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                    );
+                    if (date != null) {
+                      setState(() => selectedClockOutDate = date);
+                    }
+                  },
+                ),
             ],
           ),
         ),
@@ -92,9 +129,9 @@ Future<void> showAddCustomSessionDialog(
           ElevatedButton(
             onPressed: () async {
               final clockIn = DateTime(
-                selectedDate.year,
-                selectedDate.month,
-                selectedDate.day,
+                selectedClockInDate.year,
+                selectedClockInDate.month,
+                selectedClockInDate.day,
                 selectedClockIn.hour,
                 selectedClockIn.minute,
               );
@@ -102,9 +139,9 @@ Future<void> showAddCustomSessionDialog(
               DateTime? clockOut;
               if (selectedClockOut != null) {
                 clockOut = DateTime(
-                  selectedDate.year,
-                  selectedDate.month,
-                  selectedDate.day,
+                  selectedClockOutDate.year,
+                  selectedClockOutDate.month,
+                  selectedClockOutDate.day,
                   selectedClockOut!.hour,
                   selectedClockOut!.minute,
                 );
@@ -147,7 +184,7 @@ Future<void> showAddCustomSessionDialog(
                 await ref
                     .read(timeTrackingProvider.notifier)
                     .createCustomSession(
-                      date: selectedDate,
+                      date: selectedClockInDate,
                       clockIn: clockIn,
                       clockOut: clockOut,
                     );
@@ -193,6 +230,11 @@ Future<void> showEditSessionDialog(
   WorkSession session, {
   VoidCallback? onSuccess,
 }) async {
+  DateTime clockInDate = session.date;
+  DateTime clockOutDate = session.clockOut != null
+      ? session.clockOut!
+      : session.date; // Default to clock in date if active
+
   TimeOfDay clockIn = TimeOfDay.fromDateTime(session.clockIn);
   TimeOfDay? clockOut = session.clockOut != null
       ? TimeOfDay.fromDateTime(session.clockOut!)
@@ -203,38 +245,103 @@ Future<void> showEditSessionDialog(
     builder: (context) => StatefulBuilder(
       builder: (context, setState) => AlertDialog(
         title: const Text('Edit Session'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Clock In'),
-              subtitle: Text(clockIn.format(context)),
-              trailing: const Icon(Icons.access_time),
-              onTap: () async {
-                final time = await showTimePicker(
-                  context: context,
-                  initialTime: clockIn,
-                );
-                if (time != null) {
-                  setState(() => clockIn = time);
-                }
-              },
-            ),
-            ListTile(
-              title: const Text('Clock Out'),
-              subtitle: Text(clockOut?.format(context) ?? 'Active'),
-              trailing: const Icon(Icons.access_time),
-              onTap: () async {
-                final time = await showTimePicker(
-                  context: context,
-                  initialTime: clockOut ?? TimeOfDay.now(),
-                );
-                if (time != null) {
-                  setState(() => clockOut = time);
-                }
-              },
-            ),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Clock In
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'Clock In',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+              ListTile(
+                title: const Text('Date'),
+                subtitle: Text(DateFormat('MMM d, y').format(clockInDate)),
+                trailing: const Icon(Icons.calendar_today),
+                onTap: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: clockInDate,
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2030),
+                  );
+                  if (date != null) {
+                    setState(() => clockInDate = date);
+                  }
+                },
+              ),
+              ListTile(
+                title: const Text('Time'),
+                subtitle: Text(clockIn.format(context)),
+                trailing: const Icon(Icons.access_time),
+                onTap: () async {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: clockIn,
+                  );
+                  if (time != null) {
+                    setState(() => clockIn = time);
+                  }
+                },
+              ),
+              
+              const Divider(),
+
+              // Clock Out
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'Clock Out',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+              ListTile(
+                title: const Text('Time'),
+                subtitle: Text(clockOut?.format(context) ?? 'Active'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (clockOut != null)
+                      IconButton(
+                        icon: const Icon(Icons.clear, size: 20),
+                        onPressed: () => setState(() => clockOut = null),
+                        tooltip: 'Clear (Active)',
+                      ),
+                    const Icon(Icons.access_time),
+                  ],
+                ),
+                onTap: () async {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: clockOut ?? TimeOfDay.now(),
+                  );
+                  if (time != null) {
+                    setState(() => clockOut = time);
+                  }
+                },
+              ),
+              if (clockOut != null)
+                ListTile(
+                  title: const Text('Date'),
+                  subtitle: Text(DateFormat('MMM d, y').format(clockOutDate)),
+                  trailing: const Icon(Icons.calendar_today),
+                  onTap: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: clockOutDate,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                    );
+                    if (date != null) {
+                      setState(() => clockOutDate = date);
+                    }
+                  },
+                ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -244,9 +351,9 @@ Future<void> showEditSessionDialog(
           ElevatedButton(
             onPressed: () async {
               final updatedClockIn = DateTime(
-                session.date.year,
-                session.date.month,
-                session.date.day,
+                clockInDate.year,
+                clockInDate.month,
+                clockInDate.day,
                 clockIn.hour,
                 clockIn.minute,
               );
@@ -254,9 +361,9 @@ Future<void> showEditSessionDialog(
               DateTime? updatedClockOut;
               if (clockOut != null) {
                 updatedClockOut = DateTime(
-                  session.date.year,
-                  session.date.month,
-                  session.date.day,
+                  clockOutDate.year,
+                  clockOutDate.month,
+                  clockOutDate.day,
                   clockOut!.hour,
                   clockOut!.minute,
                 );
@@ -276,7 +383,7 @@ Future<void> showEditSessionDialog(
 
               final updatedSession = WorkSession(
                 id: session.id,
-                date: session.date,
+                date: clockInDate, // Update the session date to match clock in date
                 clockIn: updatedClockIn,
                 clockOut: updatedClockOut,
               );
