@@ -45,8 +45,14 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
   Future<TimeTrackingState> _loadData() async {
     final activeSession = await _repository.getActiveSession();
     final todaySessions = await _repository.getSessionsForDate(DateTime.now());
-    final todayHours = await _repository.getTotalHoursForDate(DateTime.now());
     final totalBalance = await _repository.calculateBalance();
+
+    final todayHours = todaySessions.fold<double>(
+      0.0,
+      (sum, session) {
+        return sum + session.durationHours;
+      },
+    );
 
     return TimeTrackingState(
       activeSession: activeSession,
@@ -56,7 +62,7 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
     );
   }
 
-  /// Refresh data
+  /// Refresh data (with loading state)
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async => await _loadData());
@@ -65,28 +71,39 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
   /// Clock in
   Future<void> clockIn() async {
     await _repository.clockIn();
-    await refresh();
+    state = AsyncValue.data(await _loadData());
   }
 
   /// Clock out
   Future<void> clockOut() async {
     await _repository.clockOut();
-    await refresh();
+    state = AsyncValue.data(await _loadData());
   }
 
-  /// Get sessions for a specific date
-  Future<List<WorkSession>> getSessionsForDate(DateTime date) async {
-    return await _repository.getSessionsForDate(date);
+  /// Create custom session
+  Future<void> createCustomSession({
+    required DateTime date,
+    required DateTime clockIn,
+    DateTime? clockOut,
+  }) async {
+    await _repository.createCustomSession(
+      date: date,
+      clockIn: clockIn,
+      clockOut: clockOut,
+    );
+    state = AsyncValue.data(await _loadData());
   }
 
-  /// Get total hours for a specific date
-  Future<double> getHoursForDate(DateTime date) async {
-    return await _repository.getTotalHoursForDate(date);
+  /// Update session
+  Future<void> updateSession(WorkSession session) async {
+    await _repository.updateSession(session);
+    state = AsyncValue.data(await _loadData());
   }
 
-  /// Get all dates with sessions
-  Future<List<DateTime>> getAllDates() async {
-    return await _repository.getAllDates();
+  /// Delete session
+  Future<void> deleteSession(int sessionId) async {
+    await _repository.deleteSession(sessionId);
+    state = AsyncValue.data(await _loadData());
   }
 }
 

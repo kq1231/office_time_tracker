@@ -43,9 +43,9 @@ class WorkSessionRepository {
         .order(WorkSession_.clockIn, flags: Order.descending)
         .build();
 
-    final sessions = await query.findAsync();
+    final session = await query.findFirstAsync();
     query.close();
-    return sessions.isEmpty ? null : sessions.first;
+    return session;
   }
 
   /// Clock in - create a new session
@@ -69,29 +69,71 @@ class WorkSessionRepository {
     return activeSession;
   }
 
-  /// Get total hours worked on a specific date
-  Future<double> getTotalHoursForDate(DateTime date) async {
-    final sessions = await getSessionsForDate(date);
-    return sessions.fold<double>(
-      0.0,
-      (sum, session) => sum + session.durationHours,
-    );
-  }
-
   /// Calculate balance (total hours - required hours)
   Future<double> calculateBalance() async {
     // Get all sessions
     final allSessions = await getAllSessions();
     // Get all dates
-    final allDates = allSessions.map((s) => s.date).toSet().toList();
+    final lengthOfAllDates = allSessions.map((s) => s.date).toSet().length;
     // Get total hours
     final totalHours = allSessions.fold<double>(
       0.0,
       (sum, session) => sum + session.durationHours,
     );
     // Get required hours
-    final requiredHours = allDates.length * 9.0;
+    final requiredHours = lengthOfAllDates * 9.0;
     // Return balance
     return totalHours - requiredHours;
+  }
+
+  /// Create a custom session with specific times
+  Future<WorkSession> createCustomSession({
+    required DateTime date,
+    required DateTime clockIn,
+    DateTime? clockOut,
+  }) async {
+    final startOfDay = DateTime(date.year, date.month, date.day);
+
+    final session = WorkSession(
+      date: startOfDay,
+      clockIn: clockIn,
+      clockOut: clockOut,
+    );
+
+    session.id = await _sessionBox.putAsync(session);
+    return session;
+  }
+
+  /// Update an existing session
+  Future<void> updateSession(WorkSession session) async {
+    await _sessionBox.putAsync(session);
+  }
+
+  /// Delete a session
+  Future<void> deleteSession(int sessionId) async {
+    await _sessionBox.removeAsync(sessionId);
+  }
+
+  /// Get paginated sessions (newest first)
+  Future<List<WorkSession>> getSessionsPaginated({
+    required int offset,
+    required int limit,
+  }) async {
+    final query = _sessionBox
+        .query()
+        .order(WorkSession_.date, flags: Order.descending)
+        .build();
+
+    query.offset = offset;
+    query.limit = limit;
+
+    final sessions = await query.findAsync();
+    query.close();
+    return sessions;
+  }
+
+  /// Get total count of sessions
+  Future<int> getSessionCount() async {
+    return _sessionBox.count();
   }
 }

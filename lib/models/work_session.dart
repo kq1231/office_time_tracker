@@ -7,28 +7,25 @@ class WorkSession {
   int id = 0;
 
   /// Date of this session (normalized to start of day)
-  @Property(type: PropertyType.date)
   DateTime date;
 
   /// Clock in time
-  @Property(type: PropertyType.date)
   DateTime clockIn;
 
   /// Clock out time (null if still active)
-  @Property(type: PropertyType.date)
   DateTime? clockOut;
 
-  /// Duration in minutes
-  int get durationMinutes {
+  /// Duration in seconds
+  int get durationSeconds {
     if (clockOut == null) {
       // If still active, calculate duration until now
-      return DateTime.now().difference(clockIn).inMinutes;
+      return DateTime.now().difference(clockIn).inSeconds;
     }
-    return clockOut!.difference(clockIn).inMinutes;
+    return clockOut!.difference(clockIn).inSeconds;
   }
 
   /// Duration in hours (with decimals)
-  double get durationHours => durationMinutes / 60.0;
+  double get durationHours => durationSeconds / 3600.0;
 
   /// Whether this session is still active
   bool get isActive => clockOut == null;
@@ -39,4 +36,9 @@ class WorkSession {
     required this.clockIn,
     this.clockOut,
   });
+
+  @override
+  String toString() {
+    return 'WorkSession(id: $id, date: $date, clockIn: $clockIn, clockOut: $clockOut, durationSeconds: $durationSeconds, durationHours: $durationHours, isActive: $isActive)';
+  }
 }
