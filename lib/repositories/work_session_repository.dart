@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:office_time_tracker/providers/app_startup_provider.dart';
+import 'package:office_time_tracker/providers/objectbox_service_provider.dart';
 
 import '../models/work_session.dart';
 import '../objectbox.g.dart';
@@ -10,10 +10,8 @@ class WorkSessionRepositoryNotifier extends AsyncNotifier {
 
   @override
   Future<void> build() async {
-    _sessionBox = ref
-        .read(objectBoxServiceProvider)
-        .store
-        .box<WorkSession>();
+    final store = ref.watch(objectBoxStoreProvider).requireValue;
+    _sessionBox = store.box<WorkSession>();
   }
 
   /// Get all sessions

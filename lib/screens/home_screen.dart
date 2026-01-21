@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:office_time_tracker/providers/theme_mode_provider.dart';
 import '../common/widgets/balance_card.dart';
 import '../common/widgets/status_card.dart';
 import '../common/widgets/today_hours_card.dart';
@@ -15,6 +16,18 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            {
+              ThemeMode.light: Icons.light_mode,
+              ThemeMode.dark: Icons.dark_mode,
+              ThemeMode.system: Icons.brightness_auto,
+            }[ref.read(themeModeProvider)],
+          ),
+          tooltip: 'Toggle Theme',
+          onPressed: () =>
+              ref.read(themeModeProvider.notifier).toggleThemeMode(),
+        ),
         title: const Text(
           'Office Time Tracker',
           style: TextStyle(fontWeight: FontWeight.bold),

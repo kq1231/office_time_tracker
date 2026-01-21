@@ -4,19 +4,14 @@ import '../objectbox.g.dart';
 
 /// Service responsible for creating and providing ObjectBox Store
 class ObjectBoxService {
-  final Store store;
-
-  ObjectBoxService._(this.store);
+  ObjectBoxService._();
 
   /// Create ObjectBox service with initialized store
-  static Future<ObjectBoxService> create() async {
+  static Future<Store> create() async {
     final docsDir = await getApplicationDocumentsDirectory();
-    final store = await openStore(directory: p.join(docsDir.path, 'office_time_tracker'));
-    return ObjectBoxService._(store);
-  }
-
-  /// Close the store
-  void close() {
-    store.close();
+    final store = await openStore(
+      directory: p.join(docsDir.path, 'office_time_tracker'),
+    );
+    return store;
   }
 }

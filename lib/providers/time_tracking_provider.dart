@@ -3,7 +3,7 @@ import 'package:office_time_tracker/common/logging/app_logger.dart';
 import '../models/work_session.dart';
 import '../repositories/work_session_repository.dart';
 import '../services/notification_service.dart';
-import 'app_startup_provider.dart';
+import 'notification_service_provider.dart';
 import 'work_session_repository_provider.dart';
 
 /// State class for time tracking
@@ -40,8 +40,8 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
   WorkSessionRepositoryNotifier get _repository =>
       ref.read(workSessionRepositoryProvider.notifier);
 
-  NotificationService get _notificationService =>
-      ref.read(notificationServiceProvider);
+  Future<NotificationService> get _notificationService async =>
+      await ref.read(notificationServiceProvider.future);
 
   @override
   Future<TimeTrackingState> build() async {
@@ -91,7 +91,8 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
     state = AsyncValue.data(await _loadData());
 
     // Cancel notifications when clocking out
-    await _notificationService.cancelNineHourReminders();
+    final notificationService = await _notificationService;
+    await notificationService.cancelNineHourReminders();
   }
 
   /// Create custom session
@@ -141,7 +142,8 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
 
     // Only schedule if less than 9 hours worked (excluding current active session)
     if (todayHoursWithoutActive < 9.0) {
-      await _notificationService.scheduleNineHourReminders(
+      final notificationService = await _notificationService;
+      await notificationService.scheduleNineHourReminders(
         currentTodayHours: todayHoursWithoutActive,
       );
     }
