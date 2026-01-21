@@ -122,30 +122,61 @@ Future<void> showAddCustomSessionDialog(
                 }
               }
 
-              Navigator.pop(context);
-
-              await ref
-                  .read(timeTrackingProvider.notifier)
-                  .createCustomSession(
-                    date: selectedDate,
-                    clockIn: clockIn,
-                    clockOut: clockOut,
-                  );
-
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      clockOut == null
-                          ? 'Active session started!'
-                          : 'Custom session added!',
-                    ),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+              // Check if trying to create an active session (no clock out)
+              if (clockOut == null) {
+                final currentState = ref.read(timeTrackingProvider).value;
+                if (currentState?.activeSession != null) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Cannot create active session! An active session already exists. Please clock out first.',
+                        ),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 4),
+                      ),
+                    );
+                  }
+                  return;
+                }
               }
 
-              onSuccess?.call();
+              Navigator.pop(context);
+
+              try {
+                await ref
+                    .read(timeTrackingProvider.notifier)
+                    .createCustomSession(
+                      date: selectedDate,
+                      clockIn: clockIn,
+                      clockOut: clockOut,
+                    );
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        clockOut == null
+                            ? 'Active session started!'
+                            : 'Custom session added!',
+                      ),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+
+                onSuccess?.call();
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
+                      backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 4),
+                    ),
+                  );
+                }
+              }
             },
             child: const Text('Add'),
           ),

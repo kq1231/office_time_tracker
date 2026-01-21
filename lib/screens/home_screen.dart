@@ -51,7 +51,9 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: const _HomeContent(),
+      body: SafeArea(
+        child: const _HomeContent(),
+      ),
     );
   }
 }
@@ -190,7 +192,11 @@ class _HomeContentState extends ConsumerState<_HomeContent>
         } catch (e) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(e.toString().replaceAll('Exception: ', '')),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 4),
+              ),
             );
           }
         }

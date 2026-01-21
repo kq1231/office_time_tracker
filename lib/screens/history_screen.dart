@@ -61,91 +61,93 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
         ],
       ),
-      body: historyAsync.when(
-        data: (historyState) {
-          if (historyState.dates.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.history, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No work history yet',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Clock in to start tracking!',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            );
-          }
+      body: SafeArea(
+        child: historyAsync.when(
+          data: (historyState) {
+            if (historyState.dates.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.history, size: 64, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No work history yet',
+                      style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Clock in to start tracking!',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              await ref.read(historyProvider.notifier).refresh();
-            },
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              itemCount:
-                  historyState.dates.length +
-                  (historyState.hasMore || historyState.isLoadingMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == historyState.dates.length) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: historyState.isLoadingMore
-                          ? const CircularProgressIndicator()
-                          : const SizedBox.shrink(),
+            return RefreshIndicator(
+              onRefresh: () async {
+                await ref.read(historyProvider.notifier).refresh();
+              },
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(16),
+                itemCount:
+                    historyState.dates.length +
+                    (historyState.hasMore || historyState.isLoadingMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == historyState.dates.length) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: historyState.isLoadingMore
+                            ? const CircularProgressIndicator()
+                            : const SizedBox.shrink(),
+                      ),
+                    );
+                  }
+
+                  final date = historyState.dates[index];
+                  final sessions = historyState.sessionsByDate[date] ?? [];
+                  return _DateCard(
+                    date: date,
+                    sessions: sessions,
+                    onEdit: (session) => showEditSessionDialog(
+                      context,
+                      ref,
+                      session,
+                      onSuccess: () {
+                        ref.read(historyProvider.notifier).refresh();
+                      },
+                    ),
+                    onDelete: (session) => showDeleteSessionDialog(
+                      context,
+                      ref,
+                      session,
+                      onSuccess: () {
+                        ref.read(historyProvider.notifier).refresh();
+                      },
                     ),
                   );
-                }
-
-                final date = historyState.dates[index];
-                final sessions = historyState.sessionsByDate[date] ?? [];
-                return _DateCard(
-                  date: date,
-                  sessions: sessions,
-                  onEdit: (session) => showEditSessionDialog(
-                    context,
-                    ref,
-                    session,
-                    onSuccess: () {
-                      ref.read(historyProvider.notifier).refresh();
-                    },
-                  ),
-                  onDelete: (session) => showDeleteSessionDialog(
-                    context,
-                    ref,
-                    session,
-                    onSuccess: () {
-                      ref.read(historyProvider.notifier).refresh();
-                    },
-                  ),
-                );
-              },
-            ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error: $error'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.invalidate(historyProvider),
-                child: const Text('Retry'),
+                },
               ),
-            ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('Error: $error'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => ref.invalidate(historyProvider),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -73,15 +73,20 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
 
   /// Clock in
   Future<void> clockIn() async {
-    await _repository.clockIn();
-    final newState = await _loadData();
-    state = AsyncValue.data(newState);
-
-    // Schedule notifications if today's hours < 9
     try {
-      await _scheduleNotificationsIfNeeded(newState);
+      await _repository.clockIn();
+      final newState = await _loadData();
+      state = AsyncValue.data(newState);
+
+      // Schedule notifications if today's hours < 9
+      try {
+        await _scheduleNotificationsIfNeeded(newState);
+      } catch (e) {
+        AppLogger.error('Error scheduling notifications: $e');
+      }
     } catch (e) {
-      AppLogger.error('Error scheduling notifications: $e');
+      AppLogger.error('Error clocking in: $e');
+      rethrow; // Rethrow to let the UI handle it
     }
   }
 
@@ -101,21 +106,26 @@ class TimeTrackingNotifier extends AsyncNotifier<TimeTrackingState> {
     required DateTime clockIn,
     DateTime? clockOut,
   }) async {
-    await _repository.createCustomSession(
-      date: date,
-      clockIn: clockIn,
-      clockOut: clockOut,
-    );
-    final newState = await _loadData();
-    state = AsyncValue.data(newState);
+    try {
+      await _repository.createCustomSession(
+        date: date,
+        clockIn: clockIn,
+        clockOut: clockOut,
+      );
+      final newState = await _loadData();
+      state = AsyncValue.data(newState);
 
-    // Schedule notifications if it's an active session and today's hours < 9
-    if (clockOut == null) {
-      try {
-        await _scheduleNotificationsIfNeeded(newState);
-      } catch (e) {
-        AppLogger.error('Error scheduling notifications: $e');
+      // Schedule notifications if it's an active session and today's hours < 9
+      if (clockOut == null) {
+        try {
+          await _scheduleNotificationsIfNeeded(newState);
+        } catch (e) {
+          AppLogger.error('Error scheduling notifications: $e');
+        }
       }
+    } catch (e) {
+      AppLogger.error('Error creating custom session: $e');
+      rethrow; // Rethrow to let the UI handle it
     }
   }
 

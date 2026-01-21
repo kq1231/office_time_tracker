@@ -57,6 +57,14 @@ class WorkSessionRepositoryNotifier extends AsyncNotifier {
 
   /// Clock in - create a new session
   Future<WorkSession> clockIn() async {
+    // Check if there's already an active session
+    final existingActiveSession = await getActiveSession();
+    if (existingActiveSession != null) {
+      throw Exception(
+        'Cannot clock in: An active session already exists. Please clock out first.',
+      );
+    }
+
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
 
@@ -99,6 +107,16 @@ class WorkSessionRepositoryNotifier extends AsyncNotifier {
     required DateTime clockIn,
     DateTime? clockOut,
   }) async {
+    // If creating an active session (no clockOut), check for existing active sessions
+    if (clockOut == null) {
+      final existingActiveSession = await getActiveSession();
+      if (existingActiveSession != null) {
+        throw Exception(
+          'Cannot create active session: An active session already exists. Please clock out first.',
+        );
+      }
+    }
+
     final startOfDay = DateTime(date.year, date.month, date.day);
 
     final session = WorkSession(
