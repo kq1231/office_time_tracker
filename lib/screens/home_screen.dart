@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:office_time_tracker/models/work_session.dart';
 import '../providers/objectbox_provider.dart';
 import '../providers/time_tracking_provider.dart';
+import '../utils/time_formatter.dart';
+import '../widgets/custom_session_dialog.dart';
 import 'history_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -24,7 +26,7 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => _showAddCustomSessionDialog(context, ref),
+            onPressed: () => showAddCustomSessionDialog(context, ref),
             tooltip: 'Add Custom Session',
           ),
           IconButton(
@@ -46,155 +48,6 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
-}
-
-Future<void> _showAddCustomSessionDialog(
-  BuildContext context,
-  WidgetRef ref,
-) async {
-  DateTime now = DateTime.now();
-  DateTime today = DateTime(now.year, now.month, now.day);
-  DateTime selectedDate = today;
-  TimeOfDay selectedClockIn = TimeOfDay.now();
-  TimeOfDay? selectedClockOut; // Null by default
-
-  await showDialog(
-    context: context,
-    builder: (context) => StatefulBuilder(
-      builder: (context, setState) => AlertDialog(
-        title: const Text('Add Custom Session'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: const Text('Date'),
-                subtitle: Text(DateFormat('MMM d, y').format(selectedDate)),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: selectedDate,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime.now(),
-                  );
-                  if (date != null) {
-                    setState(() => selectedDate = date);
-                  }
-                },
-              ),
-              ListTile(
-                title: const Text('Clock In'),
-                subtitle: Text(selectedClockIn.format(context)),
-                trailing: const Icon(Icons.access_time),
-                onTap: () async {
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime: selectedClockIn,
-                  );
-                  if (time != null) {
-                    setState(() => selectedClockIn = time);
-                  }
-                },
-              ),
-              ListTile(
-                title: const Text('Clock Out'),
-                subtitle: Text(
-                  selectedClockOut?.format(context) ?? 'In Progress',
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (selectedClockOut != null)
-                      IconButton(
-                        icon: const Icon(Icons.clear, size: 20),
-                        onPressed: () =>
-                            setState(() => selectedClockOut = null),
-                        tooltip: 'Clear (In Progress)',
-                      ),
-                    const Icon(Icons.access_time),
-                  ],
-                ),
-                onTap: () async {
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime: selectedClockOut ?? TimeOfDay.now(),
-                  );
-                  if (time != null) {
-                    setState(() => selectedClockOut = time);
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final clockIn = DateTime(
-                selectedDate.year,
-                selectedDate.month,
-                selectedDate.day,
-                selectedClockIn.hour,
-                selectedClockIn.minute,
-              );
-
-              DateTime? clockOut;
-              if (selectedClockOut != null) {
-                clockOut = DateTime(
-                  selectedDate.year,
-                  selectedDate.month,
-                  selectedDate.day,
-                  selectedClockOut!.hour,
-                  selectedClockOut!.minute,
-                );
-
-                if (clockOut.isBefore(clockIn)) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Clock out must be after clock in!'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                  return;
-                }
-              }
-
-              Navigator.pop(context);
-
-              await ref
-                  .read(timeTrackingProvider.notifier)
-                  .createCustomSession(
-                    date: selectedDate,
-                    clockIn: clockIn,
-                    clockOut: clockOut,
-                  );
-
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      clockOut == null
-                          ? 'Active session started!'
-                          : 'Custom session added!',
-                    ),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    ),
-  );
 }
 
 class _HomeContent extends ConsumerStatefulWidget {
@@ -341,7 +194,7 @@ class _HomeContentState extends ConsumerState<_HomeContent>
                   Icon(Icons.timer, size: 20, color: Colors.green[700]),
                   const SizedBox(width: 6),
                   Text(
-                    _formatDuration(totalSeconds),
+                    TimeFormatter.formatDuration(totalSeconds),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Colors.green[700],
                       fontWeight: FontWeight.bold,
@@ -408,7 +261,7 @@ class _HomeContentState extends ConsumerState<_HomeContent>
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  _formatHours(realtimeTodayHours),
+                  TimeFormatter.formatHours(realtimeTodayHours),
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.blue[700],
@@ -467,7 +320,7 @@ class _HomeContentState extends ConsumerState<_HomeContent>
     final clockOut = session.clockOut != null
         ? timeFormat.format(session.clockOut!)
         : 'Active';
-    final duration = _formatDuration(session.durationSeconds);
+    final duration = TimeFormatter.formatDuration(session.durationSeconds);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -573,7 +426,7 @@ class _HomeContentState extends ConsumerState<_HomeContent>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '${isPositive ? '+' : ''}${_formatHours(realtimeBalance)}',
+                  '${isPositive ? '+' : ''}${TimeFormatter.formatHours(realtimeBalance)}',
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: color[700],
@@ -659,30 +512,5 @@ class _HomeContentState extends ConsumerState<_HomeContent>
         ],
       ),
     );
-  }
-
-  String _formatHours(double hours) {
-    final h = hours.floor();
-    final m = ((hours - h) * 60).floor();
-    if (m == 0) {
-      return '${h}h';
-    }
-    return '${h}h ${m}m';
-  }
-
-  String _formatDuration(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    final s = seconds % 60;
-    if (h == 0) {
-      return '${m}m';
-    }
-    if (m == 0) {
-      return '${h}h';
-    }
-    if (s == 0) {
-      return '${h}h ${m}m';
-    }
-    return '${h}h ${m}m ${s}s';
   }
 }
