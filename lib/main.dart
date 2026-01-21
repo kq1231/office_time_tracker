@@ -14,6 +14,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Office Time Tracker',
       debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.system,
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blue,

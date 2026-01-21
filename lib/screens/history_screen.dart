@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../common/constants/app_colors.dart';
 import '../models/work_session.dart';
 import '../providers/history_provider.dart';
 import '../utils/time_formatter.dart';
@@ -185,10 +186,14 @@ class _DateCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Date header
+              // Date header
             Row(
               children: [
-                Icon(Icons.calendar_today, size: 20, color: Colors.blue[700]),
+                Icon(
+                  Icons.calendar_today,
+                  size: 20,
+                  color: AppColors.getInfoColor(context),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -205,7 +210,9 @@ class _DateCard extends ConsumerWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: isPositive ? Colors.green[100] : Colors.red[100],
+                    color: isPositive
+                        ? AppColors.getBadgePositiveBackgroundColor(context)
+                        : AppColors.getBadgeNegativeBackgroundColor(context),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -213,7 +220,9 @@ class _DateCard extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: isPositive ? Colors.green[700] : Colors.red[700],
+                      color: isPositive
+                          ? AppColors.getBadgePositiveColor(context)
+                          : AppColors.getBadgeNegativeColor(context),
                     ),
                   ),
                 ),
@@ -224,23 +233,33 @@ class _DateCard extends ConsumerWidget {
             // Total hours
             Row(
               children: [
-                Icon(Icons.access_time, size: 18, color: Colors.grey[600]),
+                Icon(
+                  Icons.access_time,
+                  size: 18,
+                  color: AppColors.getTextSecondaryColor(context),
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'Total: ',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.getTextSecondaryColor(context),
+                  ),
                 ),
                 Text(
                   TimeFormatter.formatHours(totalHours),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue[700],
+                    color: AppColors.getInfoColor(context),
                   ),
                 ),
                 Text(
                   ' of $requiredHours hours',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.getTextSecondaryColor(context),
+                  ),
                 ),
               ],
             ),
@@ -260,13 +279,15 @@ class _DateCard extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
                   children: [
-                    Icon(
-                      session.isActive
-                          ? Icons.radio_button_checked
-                          : Icons.check_circle_outline,
-                      size: 16,
-                      color: session.isActive ? Colors.green : Colors.blue,
-                    ),
+                  Icon(
+                    session.isActive
+                        ? Icons.radio_button_checked
+                        : Icons.check_circle_outline,
+                    size: 16,
+                    color: session.isActive
+                        ? AppColors.getSuccessColor(context)
+                        : AppColors.getInfoColor(context),
+                  ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -274,14 +295,14 @@ class _DateCard extends ConsumerWidget {
                         style: const TextStyle(fontSize: 14),
                       ),
                     ),
-                    Text(
-                      duration,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blue[700],
-                      ),
+                  Text(
+                    duration,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.getInfoColor(context),
                     ),
+                  ),
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.edit, size: 18),
