@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../common/constants/app_colors.dart';
-import '../models/work_session.dart';
+import '../../../common/constants/app_colors.dart';
+import '../../../common/models/work_session.dart';
 import '../providers/history_provider.dart';
-import '../utils/time_formatter.dart';
-import '../widgets/custom_session_dialog.dart';
+import '../../../utils/time_formatter.dart';
+import '../../../common/widgets/session_dialogs.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});

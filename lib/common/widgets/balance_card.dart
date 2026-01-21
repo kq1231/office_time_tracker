@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/work_session.dart';
+import '../models/work_session.dart';
 import '../../utils/time_formatter.dart';
 import '../constants/app_colors.dart';
 

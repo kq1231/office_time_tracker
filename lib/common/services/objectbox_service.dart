@@ -1,6 +1,6 @@
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import '../objectbox.g.dart';
+import '../../objectbox.g.dart';
 
 /// Service responsible for creating and providing ObjectBox Store
 class ObjectBoxService {

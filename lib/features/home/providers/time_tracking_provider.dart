@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:office_time_tracker/common/logging/app_logger.dart';
-import '../models/work_session.dart';
-import '../repositories/work_session_repository.dart';
-import '../services/notification_service.dart';
-import 'notification_service_provider.dart';
-import 'work_session_repository_provider.dart';
+import '../../../common/models/work_session.dart';
+import '../../../common/repositories/work_session_repository.dart';
+import '../../../common/services/notification_service.dart';
+import '../../../common/providers/notification_service_provider.dart';
+import '../../../common/providers/work_session_repository_provider.dart';
 
 /// State class for time tracking
 class TimeTrackingState {

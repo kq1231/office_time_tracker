@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:office_time_tracker/providers/theme_mode_provider.dart';
-import '../common/widgets/balance_card.dart';
-import '../common/widgets/status_card.dart';
-import '../common/widgets/today_hours_card.dart';
+import 'package:office_time_tracker/common/providers/theme_mode_provider.dart';
+import '../../../common/widgets/balance_card.dart';
+import '../../../common/widgets/status_card.dart';
+import '../../../common/widgets/today_hours_card.dart';
 import '../providers/time_tracking_provider.dart';
-import '../widgets/custom_session_dialog.dart';
-import 'history_screen.dart';
+import '../../../common/widgets/session_dialogs.dart';
+import '../../history/screens/history_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

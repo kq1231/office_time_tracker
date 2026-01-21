@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:office_time_tracker/providers/theme_mode_provider.dart';
-import 'screens/home_screen.dart';
-import 'widgets/app_startup_widget.dart';
+import 'package:office_time_tracker/common/providers/theme_mode_provider.dart';
+import 'features/home/screens/home_screen.dart';
+import 'start/widgets/app_startup_widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

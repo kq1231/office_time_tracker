@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:office_time_tracker/providers/objectbox_service_provider.dart';
+import 'package:office_time_tracker/common/providers/objectbox_store_provider.dart';
 
 import '../models/work_session.dart';
-import '../objectbox.g.dart';
+import '../../objectbox.g.dart';
 
 /// Repository for managing work session data operations
 class WorkSessionRepositoryNotifier extends AsyncNotifier {

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'objectbox_service_provider.dart';
-import 'notification_service_provider.dart';
+import '../../common/providers/objectbox_store_provider.dart';
+import '../../common/providers/notification_service_provider.dart';
 
 /// Provider that handles app startup initialization
 /// Initializes ObjectBox and Notification Service

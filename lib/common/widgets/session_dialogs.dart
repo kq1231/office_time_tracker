@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/work_session.dart';
-import '../providers/time_tracking_provider.dart';
+import '../../features/home/providers/time_tracking_provider.dart';
 
 /// Shows a dialog to add a custom session
 Future<void> showAddCustomSessionDialog(
@@ -34,7 +34,9 @@ Future<void> showAddCustomSessionDialog(
               ),
               ListTile(
                 title: const Text('Date'),
-                subtitle: Text(DateFormat('MMM d, y').format(selectedClockInDate)),
+                subtitle: Text(
+                  DateFormat('MMM d, y').format(selectedClockInDate),
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final date = await showDatePicker(
@@ -62,7 +64,7 @@ Future<void> showAddCustomSessionDialog(
                   }
                 },
               ),
-              
+
               const Divider(),
 
               // Clock Out Date & Time
@@ -104,7 +106,9 @@ Future<void> showAddCustomSessionDialog(
               if (selectedClockOut != null)
                 ListTile(
                   title: const Text('Date'),
-                  subtitle: Text(DateFormat('MMM d, y').format(selectedClockOutDate)),
+                  subtitle: Text(
+                    DateFormat('MMM d, y').format(selectedClockOutDate),
+                  ),
                   trailing: const Icon(Icons.calendar_today),
                   onTap: () async {
                     final date = await showDatePicker(
@@ -207,7 +211,9 @@ Future<void> showAddCustomSessionDialog(
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
+                      content: Text(
+                        'Error: ${e.toString().replaceAll('Exception: ', '')}',
+                      ),
                       backgroundColor: Colors.red,
                       duration: const Duration(seconds: 4),
                     ),
@@ -287,7 +293,7 @@ Future<void> showEditSessionDialog(
                   }
                 },
               ),
-              
+
               const Divider(),
 
               // Clock Out
@@ -383,7 +389,8 @@ Future<void> showEditSessionDialog(
 
               final updatedSession = WorkSession(
                 id: session.id,
-                date: clockInDate, // Update the session date to match clock in date
+                date:
+                    clockInDate, // Update the session date to match clock in date
                 clockIn: updatedClockIn,
                 clockOut: updatedClockOut,
               );
