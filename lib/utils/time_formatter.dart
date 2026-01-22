@@ -45,7 +45,7 @@ class TimeFormatter {
     final absHours = hours.abs();
     
     final h = absHours.truncate();
-    final m = ((absHours - h) * 60).round();
+    final m = ((absHours - h) * 60).floor();
     
     final sign = isNegative ? '-' : '';
     
