@@ -140,7 +140,7 @@ class _SessionRow extends StatelessWidget {
     final clockOut = session.clockOut != null
         ? timeFormat.format(session.clockOut!)
         : 'Active';
-    final duration = TimeFormatter.formatDuration(session.durationSeconds);
+    final duration = TimeFormatter.formatSeconds(session.durationSeconds);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

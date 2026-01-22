@@ -85,7 +85,7 @@ class StatusCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    TimeFormatter.formatDuration(totalSeconds),
+                    TimeFormatter.formatSeconds(totalSeconds),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: AppColors.getSuccessColor(context),
                       fontWeight: FontWeight.bold,
