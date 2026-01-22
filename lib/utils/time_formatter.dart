@@ -9,13 +9,13 @@ class TimeFormatter {
   static String formatSeconds(int seconds) {
     final isNegative = seconds < 0;
     final absSeconds = seconds.abs();
-    
+
     final h = absSeconds ~/ 3600;
     final m = (absSeconds % 3600) ~/ 60;
     final s = absSeconds % 60;
-    
+
     final sign = isNegative ? '-' : '';
-    
+
     if (h == 0) {
       if (s == 0) {
         return '$sign${m}m';
@@ -43,15 +43,20 @@ class TimeFormatter {
   static String formatHours(double hours) {
     final isNegative = hours < 0;
     final absHours = hours.abs();
-    
+
     final h = absHours.truncate();
     final m = ((absHours - h) * 60).floor();
-    
+
     final sign = isNegative ? '-' : '';
-    
+
     if (m == 0) {
       return '$sign${h}h';
     }
+
+    if (h == 0) {
+      return '$sign${m}m';
+    }
+
     return '$sign${h}h ${m}m';
   }
 }
